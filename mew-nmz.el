@@ -18,7 +18,7 @@
     (error nil)))
 
 ;; Variables
-(defconst mew-nmz-version "2008-04-06")
+(defconst mew-nmz-version "2008-11-28")
 
 (defgroup mew-nmz nil
   "Namazu support with Mew."
@@ -415,6 +415,8 @@ This value MUST be less then equal `INDEX_MAX' of libnamazu.h."
     (with-temp-buffer
       (dolist (fldmsg fldmsgs)
 	(setq fld (car fldmsg))
+	(unless (mew-folder-localp fld)
+	  (setq fld (mew-path-to-folder (mew-expand-folder fld))))
 	(insert (format "CD:%s\n" fld))
 	(dolist (msg (cdr fldmsg))
 	  (insert msg "\n")
@@ -730,12 +732,7 @@ If executed with '\\[universal-argument] 0', remove indices before make index."
 
 (defun mew-nmz-mknmz-get-all-folders ()
   (let ((protos (delq mew-folder-virtual (copy-sequence mew-folder-prefixes)))
-	(allcases (if (null mew-config-alist)
-		      '("")
-		    (mapcar (lambda (x) (if (stringp (car x))
-					    (car x)
-					  (symbol-name (car x))))
-			    mew-config-alist)))
+	(allcases (or mew-config-cases '("")))
 	flist cases donecases flds fld dir)
     (message "mew-nmz getting all folders...")
     (dolist (proto protos)
