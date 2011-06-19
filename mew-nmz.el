@@ -18,7 +18,7 @@
     (error nil)))
 
 ;; Variables
-(defconst mew-nmz-version "2008-02-21")
+(defconst mew-nmz-version "2008-04-06")
 
 (defgroup mew-nmz nil
   "Namazu support with Mew."
@@ -732,7 +732,10 @@ If executed with '\\[universal-argument] 0', remove indices before make index."
   (let ((protos (delq mew-folder-virtual (copy-sequence mew-folder-prefixes)))
 	(allcases (if (null mew-config-alist)
 		      '("")
-		    (mapcar (lambda (x) (car x)) mew-config-alist)))
+		    (mapcar (lambda (x) (if (stringp (car x))
+					    (car x)
+					  (symbol-name (car x))))
+			    mew-config-alist)))
 	flist cases donecases flds fld dir)
     (message "mew-nmz getting all folders...")
     (dolist (proto protos)
@@ -1520,18 +1523,19 @@ If executed with '\\[universal-argument]', search result indexes."
     (unless case (setq case ""))
     (dolist (flds folders-alist)
       (setq fld (car flds))
-      (when (eq proto 'imap)
-	(setq fld (mew-nmz-imap-directory-file-name fld ocase)))
-      (setq fld (directory-file-name (if (string= case "")
-					 fld
-				       (concat case ":" fld))))
-      (when (and (or (not (eq proto 'nntp))
-		     (file-directory-p (mew-expand-folder fld)))
-		 (setq nmzdir (mew-nmz-expand-folder fld))
-		 (file-directory-p nmzdir)
-		 (file-exists-p (expand-file-name "NMZ.i" nmzdir)))
-	(setq fld-index-alist (cons (cons fld nmzdir) fld-index-alist))
-	(setq url-fld-alist (cons (cons (mew-expand-folder fld) fld) url-fld-alist))))
+      (when fld
+	(when (eq proto 'imap)
+	  (setq fld (mew-nmz-imap-directory-file-name fld ocase)))
+	(setq fld (directory-file-name (if (string= case "")
+					   fld
+					 (concat case ":" fld))))
+	(when (and (or (not (eq proto 'nntp))
+		       (file-directory-p (mew-expand-folder fld)))
+		   (setq nmzdir (mew-nmz-expand-folder fld))
+		   (file-directory-p nmzdir)
+		   (file-exists-p (expand-file-name "NMZ.i" nmzdir)))
+	  (setq fld-index-alist (cons (cons fld nmzdir) fld-index-alist))
+	  (setq url-fld-alist (cons (cons (mew-expand-folder fld) fld) url-fld-alist)))))
     (setq mew-nmz-fld-index-alist
 	  (append mew-nmz-fld-index-alist (nreverse fld-index-alist)))
     (setq mew-nmz-url-fld-alist
