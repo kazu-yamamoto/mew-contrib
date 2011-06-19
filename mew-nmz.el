@@ -18,7 +18,7 @@
     (error nil)))
 
 ;; Variables
-(defconst mew-nmz-version "01·î30Æü(¶â)")
+(defconst mew-nmz-version "2010-06-08")
 
 (defgroup mew-nmz nil
   "Namazu support with Mew."
@@ -621,7 +621,10 @@ If executed with '\\[universal-argument] 0', remove indices before make index."
 		 fld (get-buffer fld) (buffer-name (get-buffer fld)))
 	(save-excursion
 	  (set-buffer (get-buffer fld))
-	  (setq mode-line-buffer-identification mew-mode-line-id)
+	  (setq mode-line-buffer-identification
+		(if (fboundp 'mew-mode-line-id)
+		    (mew-mode-line-id)
+		  mew-mode-line-id))
 	  (set-buffer-modified-p nil)))
       (set-buffer-modified-p nil)
       (unless (memq mew-debug '(namazu t))
@@ -687,7 +690,10 @@ If executed with '\\[universal-argument] 0', remove indices before make index."
 		 fld (get-buffer fld) (buffer-name (get-buffer fld)))
 	(save-excursion
 	  (set-buffer (get-buffer fld))
-	  (setq mode-line-buffer-identification mew-mode-line-id)
+	  (setq mode-line-buffer-identification
+		(if (fboundp 'mew-mode-line-id)
+		    (mew-mode-line-id)
+		  mew-mode-line-id))
 	  (set-buffer-modified-p nil)))
       (unless (memq mew-debug '(namazu t))
 	(kill-buffer (current-buffer))))))
@@ -1358,6 +1364,10 @@ If executed with '\\[universal-argument]', search result indexes."
     nmzdirs))
 
 (defun mew-nmz-goto-folder-msg (fld msg &optional pos disp)
+  (when (string-match "^+#" fld)
+    (mew-nmz-setup)
+    (setq fld (or (cdr (assoc (mew-expand-folder fld) mew-nmz-url-fld-alist))
+		  fld)))
   (mew-summary-visit-folder fld)
   (if (mew-virtual-p)
       (mew-summary-move-and-display msg disp)
