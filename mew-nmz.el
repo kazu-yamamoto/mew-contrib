@@ -18,7 +18,7 @@
     (error nil)))
 
 ;; Variables
-(defconst mew-nmz-version "2008-11-28")
+(defconst mew-nmz-version "01·î30Æü(¶â)")
 
 (defgroup mew-nmz nil
   "Namazu support with Mew."
@@ -339,7 +339,7 @@ This value MUST be less then equal `INDEX_MAX' of libnamazu.h."
 	 (nmzdir (directory-file-name (mew-expand-folder case:folder))))
     (if (not imapp)
 	nmzdir
-      (while (string-match "&" nmzdir)
+      (while (string-match "[][]" nmzdir)
 	(setq nmzdir (concat (substring nmzdir 0 (match-beginning 0))
 			     "%%"
 			     (substring nmzdir (match-end 0)))))
